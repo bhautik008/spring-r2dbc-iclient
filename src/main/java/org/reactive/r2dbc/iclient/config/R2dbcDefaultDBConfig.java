@@ -1,10 +1,18 @@
 package org.reactive.r2dbc.iclient.config;
 
 import static org.springframework.util.Assert.hasText;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.HOST;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PORT;
+import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
 
+import org.apache.commons.lang3.StringUtils;
 import org.reactive.r2dbc.iclient.core.R2dbcSqlSession;
 import org.reactive.r2dbc.iclient.core.R2dbcSqlSessionFactory;
 import org.reactive.r2dbc.iclient.core.R2dbcSqlSessionFactoryBuilder;
+import org.reactive.r2dbc.iclient.type.DatabaseTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +21,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
-import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
+import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Option;
 
 /**
  * Default configuration class to initialize {@link ConnectionFactory},
@@ -43,6 +52,10 @@ public class R2dbcDefaultDBConfig {
 	private String dbPassword;
 	@Value("${spring.r2dbc.database:}")
 	private String dbDatabase;
+	@Value("${spring.r2dbc.dbtype:}")
+	private String dbType;
+	@Value("${spring.r2dbc.options:}")
+	private String dbOptions;
 
 	/**
 	 * Initialize default {@link ConnectionFactory} based on provided properties.
@@ -53,7 +66,7 @@ public class R2dbcDefaultDBConfig {
 	@ConditionalOnMissingBean
 	public ConnectionFactory connectionFactory() {
 		log.debug("Initializing default MySQL ConnectionFactory.");
-		
+
 		hasText(dbHost, "Host is require for database connection. Please define 'spring.r2dbc.host' property.");
 		hasText(dbPort, "Port is require for database connection. Please define 'spring.r2dbc.port' property.");
 		hasText(dbUsername,
@@ -62,11 +75,29 @@ public class R2dbcDefaultDBConfig {
 				"Password is require for database connection. Please define 'spring.r2dbc.password' property.");
 		hasText(dbDatabase,
 				"Database name is require for database connection. Please define 'spring.r2dbc.database' property.");
+		hasText(dbType,
+				"Database Type is require for database connection. Please define 'spring.r2dbc.database' property with either of these values [mysql, postgresql, mariadb].");
 
-		MySqlConnectionConfiguration configuration = MySqlConnectionConfiguration.builder().host(dbHost)
-				.port(Integer.parseInt(dbPort)).user(dbUsername).password(dbPassword).database(dbDatabase).build();
+		ConnectionFactoryOptions.Builder builder = ConnectionFactoryOptions.builder().option(HOST, dbHost)
+				.option(PORT, Integer.valueOf(dbPort))
+				.option(DRIVER, DatabaseTypes.getDatabaseType(dbType).getDatabaseType())
+				.option(DATABASE, dbDatabase)
+				.option(USER, dbUsername)
+				.option(PASSWORD, dbPassword);
 		
-		return MySqlConnectionFactory.from(configuration);
+		if (StringUtils.isNotBlank(dbOptions)) {
+			String[] options = StringUtils.split(dbOptions, ",");
+			if (options != null && options.length > 0) {
+				for (String option : options) {
+					String[] op = StringUtils.split(option, ":");
+					if (op != null && op.length == 2) {
+						builder = builder.option(Option.valueOf(op[0]), op[1]);
+					}
+				}
+			}
+		}
+		
+		return ConnectionFactories.get(builder.build());
 	}
 
 	/**

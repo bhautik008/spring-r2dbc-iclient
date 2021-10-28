@@ -9,19 +9,19 @@
 		<version>2.5.5</version>
 		<relativePath />
 	</parent>
-	
+
 	<groupId>org.reactive.r2dbc.iclient</groupId>
 	<artifactId>spring-r2dbc-iclient</artifactId>
 	<version>0.0.1</version>
-	<name>spring-r2dbc-2</name>
+	<name>spring-r2dbc-iclient</name>
 	<description>Reactive implementation of R2dbc similar to MyBatis</description>
-	
+
 	<properties>
 		<java.version>11</java.version>
 		<reactorBomVersion>2020.0.9</reactorBomVersion>
 		<r2dbcBomVersion>Arabba-SR10</r2dbcBomVersion>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -35,6 +35,7 @@
 			<groupId>io.projectreactor.netty</groupId>
 			<artifactId>reactor-netty</artifactId>
 		</dependency>
+		<!-- MySQL Connectors -->
 		<dependency>
 			<groupId>dev.miku</groupId>
 			<artifactId>r2dbc-mysql</artifactId>
@@ -42,6 +43,26 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<!-- MariaDB Connectors -->
+		<dependency>
+			<groupId>org.mariadb</groupId>
+			<artifactId>r2dbc-mariadb</artifactId>
+		</dependency>
+		<!-- MSSQL Connector -->
+		<dependency>
+			<groupId>io.r2dbc</groupId>
+			<artifactId>r2dbc-mssql</artifactId>
+		</dependency>
+		<!-- Oracle Connector -->
+		<dependency>
+			<groupId>com.oracle.database.r2dbc</groupId>
+			<artifactId>oracle-r2dbc</artifactId>
+		</dependency>
+		<!-- Postgresql Connector -->
+		<dependency>
+			<groupId>io.r2dbc</groupId>
+			<artifactId>r2dbc-postgresql</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
