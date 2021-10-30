@@ -38,7 +38,7 @@ Use following annotations to create required SQL Statmement methods:
 
 ### SELECT
 
-Annotate a method with **@SELECT** annotation providing SQL statment to execute.
+Annotate a method with **@SELECT** annotation providing SQL statment to execute select queries.
 <pre>
 @Select("select * from user")
 public Flux&lt;User&gt; getAll();
@@ -76,4 +76,21 @@ public Mono&lt;User&gt; getUserById(@Param("userId") Integer userId);
 **@Param** annotation is required when passing parameter to SQL statement.
 
 ### INSERT
+
+Annotate a method with **@INSERT** annotation providing SQL statment to execute insert queries.
+<pre>
+@Insert(value = "insert into user (user_name, user_phone, user_address, user_city, user_state) values (:user.userName, :user.userPhone, :user.userAddress.userAddress, :user.userAddress.userCity, :user.userAddress.userState)", 
+	propertyMapper = {
+		@PropertyMapper(javaType = String.class, properties = "user.userPhone, user.userName, user.userAddress.userAddress, user.userAddress.userCity, user.userAddress.userState") }, 
+	retrieveId = "user_id", 
+	idType = Integer.class)
+public Mono&lt;Integer&gt; insertUser(@Param("user") User user);
+</pre>
+
+Unlike MyBatis, `propertyMapper` is required when passing paramter as paramter value can be null. Please read [Spring R2DBC DatabaseClient.BindSpec](https://docs.spring.io/spring-data/r2dbc/docs/current/api/org/springframework/data/r2dbc/core/DatabaseClient.BindSpec.html#bindNull-int-java.lang.Class-) documentation. As Spring R2DBC iClient uses DatabaseClient to communicate with database, it needs `propertyMapper` with possible properties and their java type listing to parse a query with parameters.
+
+**@PropertyMapper** requires `javaType` which is java object type and `properties` having list of parameters or if parameter is domain object then list of properties that domain object having this java type.
+
+`retrieveId` is optional property. Provide SQL result column name to get value as return of SQL method call. If no `retrieveId` provided then default return would be number of records affect by execution of statement.
+`idType` is required when defining `retrieveId`. It will hold java object type in value must be returned. If `idType` if provided then return type would by Mono<`idType`> else Mono<Integer>.
 
