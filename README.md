@@ -41,7 +41,7 @@ Use following annotations to create required SQL Statmement methods:
 Annotate a method with **@SELECT** annotation providing SQL statment to execute.
 <pre>
 @Select("select * from user")
-public Flux<User> getAll();
+public Flux&lt;User&gt; getAll();
 </pre>
 
 If result mapping is not provided then default return type would be Map<String, Object>. 
@@ -53,14 +53,14 @@ To map SQL result to domain object, annotate a method with either **@Results** t
 			@Result(property = "userPhone", column = "user_phone", javaType = String.class),
 			@Result(property = "userAddress", javaType = UserAddress.class, resultMap = "userAddressMap") })
 @Select("select * from user")
-public Flux<User> getAll();
+public Flux&lt;User&gt; getAll();
 
 @Results(id = "userAddressMap", type = UserAddress.class, value = {
 			@Result(property = "userAddress", column = "user_address", javaType = String.class),
 			@Result(property = "userCity", column = "user_city", javaType = String.class),
 			@Result(property = "userState", column = "user_state", javaType = String.class) })
 @Select("select user_address, user_city, user_state from user")
-public Flux<UserAddress> getUserAddress();
+public Flux&lt;UserAddress&gt; getUserAddress();
 </pre>
 
 As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property type.
@@ -70,7 +70,7 @@ If query requires a parameter then following was paramters can be passed:
 <pre>
 @ResultMap("userMap")
 @Select("select * from user where user_id = :userId")
-public Mono<User> getUserById(@Param("userId") Integer userId);
+public Mono&lt;User&gt; getUserById(@Param("userId") Integer userId);
 </pre>
 
 **@Param** annotation is required when passing parameter to SQL statement.
