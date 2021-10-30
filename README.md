@@ -38,7 +38,7 @@ Use following annotations to create required SQL Statmement methods:
 
 ### SELECT
 
-Annotate a method with **@SELECT** annotation providing SQL statment to execute select queries.
+Annotate a method with **@Select** annotation providing SQL statment to execute select queries.
 <pre>
 @Select("select * from user")
 public Flux&lt;User&gt; getAll();
@@ -73,11 +73,11 @@ If query requires a parameter then following was paramters can be passed:
 public Mono&lt;User&gt; getUserById(@Param("userId") Integer userId);
 </pre>
 
-**@Param** annotation is required when passing parameter to SQL statement.
+**@Param** annotation is required when passing parameter to SQL statement. ** Refer Note #1 for `propertyMapper`**
 
 ### INSERT
 
-Annotate a method with **@INSERT** annotation providing SQL statment to execute insert queries.
+Annotate a method with **@Insert** annotation providing SQL statment to execute insert queries.
 <pre>
 @Insert(value = "insert into user (user_name, user_phone, user_address, user_city, user_state) values (:user.userName, :user.userPhone, :user.userAddress.userAddress, :user.userAddress.userCity, :user.userAddress.userState)", 
 	propertyMapper = {
@@ -87,10 +87,44 @@ Annotate a method with **@INSERT** annotation providing SQL statment to execute 
 public Mono&lt;Integer&gt; insertUser(@Param("user") User user);
 </pre>
 
+** Refer Note #1 for `propertyMapper`** 
+
+`retrieveId` is optional property. Provide SQL result column name to get value as return of SQL method call. If no `retrieveId` provided then default return would be number of records affected by execution of statement.
+
+`idType` is required when defining `retrieveId`. It will hold java object type in value must be returned. If `idType` provided then return type would by Mono<`idType`> else Mono<Integer>.
+
+### UPDATE
+
+Annotate a method with **@Update** annotation providing SQL statment to execute update queries.
+<pre>
+@Update(value = "update user set user_name = :user.userName where user_id = :user.userId",
+	propertyMapper = {
+		@PropertyMapper(javaType = String.class, properties = "user.userName"),
+		@PropertyMapper(javaType = Integer.class, properties = "user.userId") })
+public Mono<Integer> updateUserName(@Param("user") User user);
+</pre>
+
+** Refer Note #1 for `propertyMapper`**
+
+Update statement will always return Mono<Integer> providing number of records affected by executing statement.
+
+### DELETE
+
+Annotate a method with **@Delete** annotation providing SQL statment to execute delete queries.
+<pre>
+@Delete(value = "delete from user where user_id = :user.userId",
+	propertyMapper = {
+		@PropertyMapper(javaType = Integer.class, properties = "user.userId") })
+public Mono<Integer> deleteUser(@Param("user") User user);
+</pre>
+
+** Refer Note #1 for `propertyMapper`**
+
+Delete statement will always return Mono<Integer> providing number of records affected by executing statement.
+
+## Notes
+**1] Why to provide `propertyMapper` to SELECT|INSERT|UPDATE|DELETE annotation while passing parameters**
+
 Unlike MyBatis, `propertyMapper` is required when passing paramter as paramter value can be null. Please read [Spring R2DBC DatabaseClient.BindSpec](https://docs.spring.io/spring-data/r2dbc/docs/current/api/org/springframework/data/r2dbc/core/DatabaseClient.BindSpec.html#bindNull-int-java.lang.Class-) documentation. As Spring R2DBC iClient uses DatabaseClient to communicate with database, it needs `propertyMapper` with possible properties and their java type listing to parse a query with parameters.
 
 **@PropertyMapper** requires `javaType` which is java object type and `properties` having list of parameters or if parameter is domain object then list of properties that domain object having this java type.
-
-`retrieveId` is optional property. Provide SQL result column name to get value as return of SQL method call. If no `retrieveId` provided then default return would be number of records affect by execution of statement.
-`idType` is required when defining `retrieveId`. It will hold java object type in value must be returned. If `idType` if provided then return type would by Mono<`idType`> else Mono<Integer>.
-
