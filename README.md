@@ -2,6 +2,8 @@
 
 The primary goal of Spring R2DBC iClient is to provide similar experience as Apache MyBatis in Reactive environment. There are some tweaks required to comply with Spring Data R2DBC.
 
+Spring R2DBC iClient is totally annotation driven. Currently it does not support XML mapping like Apache MyBatis does.
+
 ## How to start with
 
 To start using Spring R2DBC iClient, provide following properties in application.properties or application.yml file or initialize custome **ConnectionFactory** bean.
