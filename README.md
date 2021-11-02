@@ -63,7 +63,7 @@ public Flux&lt;User&gt; getAll();
 public Flux&lt;UserAddress&gt; getUserAddress();
 </pre>
 
-As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property type.
+As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property data type.
 If domain property is another domain object then provide existing `resultMap` ID and no `column` requires.
 
 If query requires a parameter then following was paramters can be passed:
@@ -91,7 +91,7 @@ public Mono&lt;Integer&gt; insertUser(@Param("user") User user);
 
 `retrieveId` is optional property. Provide SQL result column name to get value as return of SQL method call. If no `retrieveId` provided then default return would be number of records affected by execution of statement.
 
-`idType` is required when defining `retrieveId`. It will hold java object type in value must be returned. If `idType` provided then return type would by Mono<`idType`> else Mono<Integer>.
+`idType` is required when defining `retrieveId`. It will hold java data type in value must be returned. If `idType` provided then return type would by Mono<`idType`> else Mono<Integer>.
 
 ### UPDATE
 
@@ -122,9 +122,62 @@ public Mono<Integer> deleteUser(@Param("user") User user);
 
 Delete statement will always return Mono<Integer> providing number of records affected by executing statement.
 
+### TypeConverter
+
+`TypeConverter` interface is used to convert SQL result into different java data type or execute certain code before mapping column value to java property.
+
+`TypeConverter` can be applied to mapping following way. `javaType` is require for returning resulting value into provided data type.
+<pre>
+@Results(id = "userAddressMap", type = UserAddress.class, value = {
+			@Result(property = "userAddress", column = "user_address", javaType = String.class),
+			@Result(property = "userCity", column = "user_city", javaType = String.class),
+			@Result(property = "userState", column = "user_state", javaType = String.class),
+			@Result(property = "userFullAddress", javaType = String.class, typeConverter = AddressCombiner.class})
+@Select("select user_address, user_city, user_state, user_zip from user")
+public Flux&lt;UserAddress&gt; getUserAddress();
+</pre>
+
+`TypeConverter` can be used following way to change data type of column value to java data type
+<pre>
+import org.reactive.r2dbc.iclient.type.TypeConverter;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+
+public class StringTypeConverter implements TypeConverter{
+
+	@Override
+	public String convert(Row row, RowMetadata rowMetadata) {
+		return String.valueOf(row.get("user_id", Integer.class));
+	}
+}
+</pre>
+
+`io.r2dbc.spi.Row` will hold each SQL result record with column name and value mapping. Single or all column values can be accessed here to apply code.
+
+Use `TypeConverter` to execute code logic before returning value
+<pre>
+import org.reactive.r2dbc.iclient.type.TypeConverter;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+
+public class AddressCombiner implements TypeConverter{
+
+	@Override
+	public String convert(Row row, RowMetadata rowMetadata) {
+		return String.valueOf(row.get("user_address", Integer.class))
+			.concat(", ")
+			.concat(String.valueOf(row.get("user_city", Integer.class)))
+			.concat(", ")
+			.concat(String.valueOf(row.get("user_state", Integer.class)))
+			.concat(" - ")
+			.concat(String.valueOf(row.get("user_zip", Integer.class)));
+	}
+}
+</pre>
+
 ## Notes
 **1] Why to provide `propertyMapper` to SELECT|INSERT|UPDATE|DELETE annotation while passing parameters**
 
-Unlike MyBatis, `propertyMapper` is required when passing paramter as paramter value can be null. Please read [Spring R2DBC DatabaseClient.BindSpec](https://docs.spring.io/spring-data/r2dbc/docs/current/api/org/springframework/data/r2dbc/core/DatabaseClient.BindSpec.html#bindNull-int-java.lang.Class-) documentation. As Spring R2DBC iClient uses DatabaseClient to communicate with database, it needs `propertyMapper` with possible properties and their java type listing to parse a query with parameters.
+Unlike MyBatis, `propertyMapper` is required when passing paramter as paramter value can be null. Please read [Spring R2DBC DatabaseClient.BindSpec](https://docs.spring.io/spring-data/r2dbc/docs/current/api/org/springframework/data/r2dbc/core/DatabaseClient.BindSpec.html#bindNull-int-java.lang.Class-) documentation. As Spring R2DBC iClient uses DatabaseClient to communicate with database, it needs `propertyMapper` with possible properties and their java data type listing to parse a query with parameters.
 
-**@PropertyMapper** requires `javaType` which is java object type and `properties` having list of parameters or if parameter is domain object then list of properties that domain object having this java type.
+**@PropertyMapper** requires `javaType` which is java data type and `properties` having list of parameters or if parameter is domain object then list of properties that domain object having this java data type.
