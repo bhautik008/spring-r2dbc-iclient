@@ -47,7 +47,7 @@ public Flux&lt;User&gt; getAll();
 </pre>
 
 If result mapping is not provided then default return type would be Map<String, Object>. 
-To map SQL result to domain object, annotate a method with either **@Results** to provide a new mapping or with **@ResultMapping** to use exisiting mapping.
+To map SQL result to domain object, annotate a method with either **@Results** to provide a new mapping or with **@ResultMap** or `resultMap` property within **@Select** annotation to use exisiting mapping.
 <pre>
 @Results(id = "userMap", type = User.class, value = {
 			@Result(property = "userId", column = "user_id", javaType = Integer.class),
@@ -64,6 +64,23 @@ public Flux&lt;User&gt; getAll();
 @Select("select user_address, user_city, user_state from user")
 public Flux&lt;UserAddress&gt; getUserAddress();
 </pre>
+
+Method can be annotated with more than one **@Results** annotation.
+<pre>
+@Results(id = "userMap", type = User.class, value = {
+			@Result(property = "userId", column = "user_id", javaType = Integer.class),
+			@Result(property = "userName", column = "user_name", javaType = String.class),
+			@Result(property = "userPhone", column = "user_phone", javaType = String.class),
+			@Result(property = "userAddress", javaType = UserAddress.class, resultMap = "userAddressMap") })
+@Results(id = "userAddressMap", type = UserAddress.class, value = {
+			@Result(property = "userAddress", column = "user_address", javaType = String.class),
+			@Result(property = "userCity", column = "user_city", javaType = String.class),
+			@Result(property = "userState", column = "user_state", javaType = String.class) })
+@Select(value = "select * from user", resultMap = "userMap")
+public Flux&lt;User&gt; getAll();
+</pre>
+
+As per above example, if more than one **@Results** annotations are defined then **@Select** annotation requires result map ID in `resultMap` property to map SQL records. `resultMap` property can have ID from defined **@Results** at similar method or defined at another method.
 
 As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property data type.
 If domain property is another domain object then provide existing `resultMap` ID and no `column` requires.
