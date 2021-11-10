@@ -92,7 +92,7 @@ If query requires a parameter then following way paramters can be passed:
 public Mono&lt;User&gt; getUserById(@Param("userId") Integer userId);
 </pre>
 
-**@Param** annotation is required when passing parameter to SQL statement. ** Refer Note #1 for `propertyMapper`**
+**@Param** annotation is required when passing parameter to SQL statement. **Refer Note #1 for `propertyMapper`**
 
 ### INSERT
 
