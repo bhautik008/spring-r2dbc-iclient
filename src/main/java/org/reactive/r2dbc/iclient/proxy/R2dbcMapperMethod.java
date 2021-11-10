@@ -122,7 +122,12 @@ public class R2dbcMapperMethod {
 			this.returnInferredType = parseInferredClass(method.getGenericReturnType());
 			this.returnsVoid = this.returnInferredType.equals(Void.TYPE);
 			this.paramNameResolver = new ParameterResolver(method);
-			if (method.isAnnotationPresent(Results.class)) {
+			if (method.isAnnotationPresent(Select.class)
+					&& StringUtils.isNotBlank(method.getAnnotation(Select.class).resultMap())) {
+				resultMap = method.getAnnotation(Select.class).resultMap();
+			} else if (method.isAnnotationPresent(Results.List.class)) {
+				resultMap = method.getAnnotation(Results.List.class).value()[0].id();
+			} else if (method.isAnnotationPresent(Results.class)) {
 				resultMap = method.getAnnotation(Results.class).id();
 			} else if (method.isAnnotationPresent(ResultMap.class)) {
 				resultMap = method.getAnnotation(ResultMap.class).value()[0];

@@ -2,6 +2,7 @@ package org.reactive.r2dbc.iclient.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -30,6 +31,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Repeatable(Results.List.class)
 public @interface Results {
 	/**
 	 * Returns the id of this result map.
@@ -51,4 +53,16 @@ public @interface Results {
 	 * @return mapping definitions
 	 */
 	Result[] value() default {};
+	
+	/**
+	 * Container annotation for {@link Results}
+	 * 
+	 * @author Bhautik Bhanani
+	 */
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	@interface List {
+		Results[] value();
+	}
 }

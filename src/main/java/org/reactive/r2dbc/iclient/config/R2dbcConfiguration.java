@@ -18,7 +18,8 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.util.ClassUtils;
 
 /**
- * Configuration class to hold mappers, result mapping and {@link DatabaseClient}
+ * Configuration class to hold mappers, result mapping and
+ * {@link DatabaseClient}
  * 
  * @author Bhautik Bhanani
  */
@@ -53,19 +54,24 @@ public class R2dbcConfiguration {
 
 	private <T> void parseMapper(Class<T> type) {
 		for (Method method : type.getMethods()) {
-			if (method.isAnnotationPresent(Results.class)) {
+			if (method.isAnnotationPresent(Results.List.class)) {
+				Results[] resultsList = method.getAnnotation(Results.List.class).value();
+				for (Results results : resultsList) {
+					parseResultMap(results, method.getName());
+				}
+			} else if (method.isAnnotationPresent(Results.class)) {
 				Results results = method.getAnnotation(Results.class);
-				parseResultMap(results);
+				parseResultMap(results, method.getName());
 			}
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void parseResultMap(Results results) {
+	private void parseResultMap(Results results, String methodName) {
 		String id = results.id();
 		Class<?> type = results.type();
 
-		notNull(id, "Id is required for @Results");
+		notNull(id, "Id is required for @Results for method: " + methodName);
 		notNull(type, "Type is required for @Results with id: " + id);
 		isTrue(ClassUtils.hasConstructor(type, new Class[0]),
 				"Type requires non argument constructor for @Results with id: " + id);

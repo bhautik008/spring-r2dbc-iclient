@@ -42,4 +42,11 @@ public @interface Select {
 	 * @return a list of @PropertyMapper
 	 */
 	PropertyMapper[] propertyMapper() default {};
+
+	/**
+	 * Returns a result map to use for mapping SQL records
+	 * 
+	 * @return a result map ID
+	 */
+	String resultMap() default "";
 }
