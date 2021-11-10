@@ -68,7 +68,7 @@ public Flux&lt;UserAddress&gt; getUserAddress();
 As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property data type.
 If domain property is another domain object then provide existing `resultMap` ID and no `column` requires.
 
-If query requires a parameter then following was paramters can be passed:
+If query requires a parameter then following way paramters can be passed:
 <pre>
 @ResultMap("userMap")
 @Select("select * from user where user_id = :userId")
