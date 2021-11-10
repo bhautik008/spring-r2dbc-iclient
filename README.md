@@ -80,7 +80,7 @@ Method can be annotated with more than one **@Results** annotation.
 public Flux&lt;User&gt; getAll();
 </pre>
 
-As per above example, if more than one **@Results** annotations are defined then **@Select** annotation requires result map ID in `resultMap` property to map SQL records. `resultMap` property can have ID from defined **@Results** at similar method or defined at another method.
+As per above example, if more than one **@Results** annotations are defined then **@Select** annotation requires result map ID in `resultMap` property to map SQL records. `resultMap` property can have ID from defined **@Results** at same method or defined at different method.
 
 As show above mapping, **@Result** requires `property` which will refer to domain object property, `column` refers to SQL result column and `javaType` refers to domain object property data type.
 If domain property is another domain object then provide existing `resultMap` ID and no `column` requires.
