@@ -8,6 +8,21 @@ Spring R2DBC iClient is totally annotation driven. Currently it does not support
 
 ## How to start with
 
+Add this as dependency into pom.xml for Maven project
+<pre>
+&lt;dependency&gt;
+  &lt;groupId&gt;io.github.bhautik008&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-r2dbc-iclient&lt;/artifactId&gt;
+  &lt;version&gt;1.0.1&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
+
+Or into build.gradle for Gradle project
+<pre>
+implementation 'io.github.bhautik008:spring-r2dbc-iclient:1.0.1'
+</pre>
+
+
 To start using Spring R2DBC iClient, provide following properties in application.properties or application.yml file or initialize custome **ConnectionFactory** bean.
 
 <pre>
